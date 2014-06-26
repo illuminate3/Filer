@@ -1,0 +1,25 @@
+{
+    "name": "lavalite/filer",
+    "description": "Package for uploading and managin file on lavalite framework",
+    "keywords": ["lavalite", "upload", "file", "media", "file-manager", "images", "laravel", "file-browser"],
+    "authors": [
+        {
+            "name": "Lava Lite",
+            "email": "info@lavalite.org"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.0",
+        "illuminate/support": "4.1.*",
+        "intervention/image": "1.*"
+    },
+    "autoload": {
+        "classmap": [
+            "src"
+        ],
+        "psr-0": {
+            "Lavalite\\File\\": "src/"
+        }
+    },
+    "minimum-stability": "stable"
+}
