@@ -94,7 +94,7 @@ return array(
     'image_types' => array('image/png','image/gif','image/jpg','image/jpeg'),
     'image_extensions' => array('png','gif','jpg','jpeg'), // Case insensitive
 
-    'image_max_size' => array('w' => 1000, 'h' => 1000),
+    'image_max_size' => array('w' => 4000, 'h' => 4000),
     'image_resize_on_upload' => true,
     // Image resizing params. http://intervention.olivervogel.net/image/methods/resize
     'image_resize' => array(

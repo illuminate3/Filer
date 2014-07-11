@@ -1,4 +1,4 @@
 <?php
 
 // Cabinet routes
-Route::controller('filer', 'Lavalite\Filer\FilerController');
+Route::post('upload/{package}/{module}/{id}/{category}', 'Lavalite\Filer\FilerController@file');

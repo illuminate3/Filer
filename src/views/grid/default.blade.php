@@ -7,6 +7,7 @@
                 '/'.$settings['size'].'_'.$file['file'])}}" class="{{{($file['default']) ? 'default' : ''}}} img-responsive">
             <figcaption>
                 <h6>{{$file['name']}}</h6>
+                <a href="{{URL::to('/admin/'.$settings['package'].'/'.$settings['module'].'/imageDelete/'.$settings['id'].'/'.$file['id'])}}" style="margin-top:0px;"><i class="fa fa-times" style="margin-top:0px;"></i> </a>
             </figcaption>
         </figure>
     </li>

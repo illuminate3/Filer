@@ -1,7 +1,7 @@
 {
     "name": "lavalite/filer",
     "description": "Package for uploading and managin file on lavalite framework",
-    "keywords": ["lavalite", "upload", "file", "media", "file-manager", "images", "laravel", "file-browser"],
+    "keywords": ["lavalite", "upload", "file", "media", "file manager", "images", "laravel", "file browser"],
     "authors": [
         {
             "name": "Lava Lite",
@@ -10,7 +10,7 @@
     ],
     "require": {
         "php": ">=5.3.0",
-        "illuminate/support": "4.1.*",
+        "illuminate/support": "4.2.*",
         "intervention/image": "1.*"
     },
     "autoload": {

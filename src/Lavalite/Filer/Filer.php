@@ -320,10 +320,25 @@ class Filer
 
     public function imageGrid($settings, $view ='default') {
 
-        $data['images']   =  $this->images($settings['package'], $settings['module'], $settings['id'])->toArray();
+        $data['images']   = $this->images($settings['package'], $settings['module'], $settings['id'])->toArray();
         $data['settings'] = $settings;
         return View::make('filer::grid.'.$view, $data);
 
+    }
+    
+
+      public function userImageGrid($imageAlbum,$settings, $view ='galleryView') {
+
+        foreach($settings as $key=>$row){
+             $imageAlbum[$key]['imageGallery']   =  $this->images($row['package'], $row['module'], $row['id'])->toArray();
+             $imageAlbum[$key]['settings']       =  $row;
+        }
+      
+         $data['images']   = $imageAlbum->toArray();
+    
+         return View::make('gallery::gallery.public.grid.'.$view, $data);
+
+ 
     }
 
 }
