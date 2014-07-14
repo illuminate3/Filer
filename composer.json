@@ -10,8 +10,12 @@
     ],
     "require": {
         "php": ">=5.3.0",
+<<<<<<< HEAD
         "illuminate/support": "4.2.*",
         "intervention/image": "1.*"
+=======
+        "illuminate/support": "4.1.*"
+>>>>>>> FETCH_HEAD
     },
     "autoload": {
         "classmap": [
