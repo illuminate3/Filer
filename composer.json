@@ -2,6 +2,7 @@
     "name": "lavalite/filer",
     "description": "Package for uploading and managin file on lavalite framework",
     "keywords": ["lavalite", "upload", "file", "media", "file manager", "images", "laravel", "file browser"],
+    "license": "MIT",
     "authors": [
         {
             "name": "Lava Lite",
