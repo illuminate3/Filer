@@ -325,7 +325,7 @@ class Filer
         return View::make('filer::grid.'.$view, $data);
 
     }
-    
+
 
       public function userImageGrid($imageAlbum,$settings, $view ='galleryView') {
 
@@ -333,12 +333,12 @@ class Filer
              $imageAlbum[$key]['imageGallery']   =  $this->images($row['package'], $row['module'], $row['id'])->toArray();
              $imageAlbum[$key]['settings']       =  $row;
         }
-      
+
          $data['images']   = $imageAlbum->toArray();
-    
+
          return View::make('gallery::gallery.public.grid.'.$view, $data);
 
- 
+
     }
 
 }

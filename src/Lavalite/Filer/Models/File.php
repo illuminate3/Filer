@@ -1,12 +1,14 @@
 <?php namespace Lavalite\Filer\Models;
 
 use Illuminate\Support\Str;
-
+use Illuminate\Database\Eloquent\SoftDeletingTrait;
 class Filer extends \Eloquent {
 
+    use SoftDeletingTrait;
+    
     protected $table = 'files';
     public $timestamps = true;
-    protected $softDelete = true;
+    protected $SoftDeletingTrait = true;
     public $fillable = ['name'];
 
 
