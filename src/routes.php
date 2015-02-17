@@ -1,5 +1,4 @@
 <?php
 
 // Cabinet routes
-Route::post('upload/{url?}', 'Lavalite\Filer\FilerController@file')
-    ->where('url', '(.*)');
+Route::post('upload/{table}/{field}/{file}', 'Lavalite\Filer\FilerController@file');

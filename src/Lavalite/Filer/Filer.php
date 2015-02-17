@@ -4,6 +4,7 @@ use URL;
 use View;
 use File;
 use Config;
+use Session;
 use Intervention;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Doctrine\Common\Proxy\Exception\InvalidArgumentException;
@@ -23,7 +24,7 @@ class Filer
      * @param String $path
      * @return array
      */
-    public function upload(UploadedFile $file,  $path)
+    public function upload(UploadedFile $file, $path)
     {
         // Check the upload type is valid by extension and mimetype
         $this->verifyUploadType($file);
@@ -32,6 +33,7 @@ class Filer
         if ($file->getSize() > Config::get('filer::max_upload_size')) {
             throw new FileException('File is too big.');
         }
+
         // Get the folder for uploads
         $folder = $this->checkUploadFolder($path);
 
@@ -43,8 +45,11 @@ class Filer
 
         $this->resizeImage($folder, $file->fileSystemName);
 
+
         // If it returns an array it's a successful upload. Otherwise an exception will be thrown.
-        return array('folder' => $this->relativePath($folder), 'file' => $file->fileSystemName, 'caption' => $this->getName($file));
+        $array  = array('folder' => $this->relativePath($folder), 'file' => $file->fileSystemName, 'caption' => $this->getName($file));
+
+        return $array;
     }
 
 
@@ -108,6 +113,7 @@ class Filer
 
         $folder = public_path() . '/' . $folder;
         $folder = $this->cleanPath($folder);
+
         // Check to see if the upload folder exists
         if (!File::exists($folder)) {
             // Try and create it
@@ -194,6 +200,7 @@ class Filer
 
         // Check to see if it ends in a slash
         if (substr($path, -1) != '/') $path .= '/';
+
         $path = str_replace('//', '/' , $path);
         return $path;
     }

@@ -3,6 +3,7 @@
 use Input;
 use File;
 use Filer;
+use Session;
 
 trait FilerTrait
 {
@@ -13,17 +14,17 @@ trait FilerTrait
         if (!isset($this->uploads)) return;
         if (isset($this->uploads['single'])) $this->uploadSingle();
         if (isset($this->uploads['multiple'])) $this->uploadMultiple();
+
     }
 
     public function uploadSingle()
     {
-
         foreach ($this->uploads['single'] as $field) {
             $file = array();
             if (Input::hasFile($field)) {
                 $upfile = Input::file($field);
                 if (!is_null($upfile))
-                $file   = Filer::upload($upfile, $this->getUploadFolder($this->id, $field));
+                $file   = Filer::upload($upfile, $this->upload_folder . '/' . $field);
             }
             $this->setFileSingle($field, $file);
         }
@@ -36,23 +37,39 @@ trait FilerTrait
             $files = array();
             if (is_array(Input::file($field))) {
                 foreach (Input::file($field) as $file) {
-                    if (!is_null($file[0]))
-                        $files[]  = Filer::upload($file[0], $this->getUploadFolder($this->id, $field));
+                    if (!empty($file))
+                        $files[]  = Filer::upload($file, $this->upload_folder. '/' . $field);
                 }
             }
-                $this -> setFileMultiple($field, $files);
-
+            $this -> setFileMultiple($field, $files);
         }
     }
 
     /**
-     * @param $id
-     * @param $field
+     * @param $value
      * @return string - path to the upload folder
      */
-    private function getUploadFolder($id, $field)
+    public function getUploadFolderAttribute($value)
     {
-        return $this->uploadFolder . "$id/$field/";
+        if (!empty($value)){
+            Session::put('upload.'.$this->table.'.upload_folder', $value);
+            return $value;
+        } else {
+            $uploadFolder   = $this->uploadRootFolder . date("Y/m/d/His").rand(100,999);
+            $this->attributes['upload_folder']   = $uploadFolder;
+            Session::put('upload.'.$this->table.'.upload_folder', $uploadFolder);
+            return $uploadFolder;
+        }
+    }
+
+    /**
+     * @param $value
+     * @return string - path to the upload folder
+     */
+    public function getUploadURL($field, $file ='file')
+    {
+        $this->upload_folder;
+        return 'upload/' . $this->table . '/' . $field . '/' . $file;
     }
 
     public function removeFile($id, $field, $no)
@@ -68,7 +85,14 @@ trait FilerTrait
         }
         $row->setAttribute($field, serialize($value));
 
-        $res = $row -> save();
+        return $row -> saveAfterImageRemoved();
+    }
+
+    public function saveAfterImageRemoved($options = array()){
+        if (parent::save($options))
+        {
+            return $this->saveTranslations();
+        }
     }
 
     public function isSingle($field)
@@ -91,20 +115,39 @@ trait FilerTrait
 
     public function setFileSingle($field, $value)
     {
-        if (!is_array($value) || !count($value)) return;
+        if (Session::has('upload.'.$this->table.'.'.$field)){
+            $value      = serialize(Session::pull('upload.'.$this->table.'.'.$field));
+        } elseif (!empty($value)){
+            $value      = serialize($value);
+        } else {
+            return;
+        }
 
-        $value      = serialize($value);
         $this -> setAttribute($field, $value);
     }
 
     public function setFileMultiple($field, $current)
     {
-        if (!is_array($current) || !count($current)) return;
+        if (empty($current)) {
+            $current = array();
+        }
+
+        $session    = array();
+        if (Session::has('upload.'.$this->table.'.'.$field)){
+            $session    = Session::pull('upload.'.$this->table.'.'.$field);
+        }
+
+        if (empty($current) && empty($session))
+            return ;
 
         $prev       = $this->getOriginalFile($field);
-        if ($prev == '') $prev = array();
 
-        $value      = array_merge($prev, $current);
+        if (empty($prev)){
+            $prev = array();
+        }
+
+        $value      = array_merge($prev, $current, $session);
+
         $value      = serialize($value);
         $this->setAttribute($field, $value);
     }
@@ -120,7 +163,7 @@ trait FilerTrait
 
     public function getOriginalFile($field)
     {
-        if ($this->isKeyReturningTranslationText($field))
+        if (method_exists($this, 'isKeyReturningTranslationText') && $this->isKeyReturningTranslationText($field))
         {
             if ($this->getTranslation() === null)
             {

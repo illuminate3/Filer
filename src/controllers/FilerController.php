@@ -3,6 +3,7 @@
 use URL;
 use Input;
 use Filer;
+use Session;
 
 class FilerController extends \Controller {
 
@@ -11,13 +12,14 @@ class FilerController extends \Controller {
      * @param $url
      * @return string
      */
-    public function file($url)
+    public function file($table, $field, $file)
 	{
-        $arr = $this->parseUrl($url);
+		if (Input::hasFile($file)) {
+            $folder     = $this->getUploadFolder($table, $field);
+			$array = Filer::upload(Input::file($file), $folder);
 
-		if (Input::hasFile($field)) {
-			$arr = Filer::upload(Input::file($arr['file']), $arr['folder']);
-			return ($arr[0] . $arr[1]);
+            Session::push('upload.'.$table. '.' . $field, $array);
+    		return ($array['folder'] . $array['file']);
 		}
 	}
 
@@ -25,12 +27,13 @@ class FilerController extends \Controller {
      * @param $url
      * @return array
      */
-    public function parseUrl($url)
+    public function getUploadFolder($table, $field)
     {
-        $parts      = explode('/', $url);
-        $file       = end($parts);
-        $folder     = str_finish(public_path(), '/').str_replace($file, '', $url);
-        return compact('file', 'folder');
+        if (!Session::has('upload.'.$table.'.upload_folder')) {
+            throw new Exception("Upload folder not exists", 1);
+        }
+        return Session::get('upload.'.$table.'.upload_folder'). '/' . $field;
+
     }
 
 }
