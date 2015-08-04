@@ -1,6 +1,6 @@
 {
     "name": "lavalite/filer",
-    "description": "Package for uploading and managin file on lavalite framework",
+    "description": "Package for managing files for Lavalite framework",
     "keywords": ["lavalite", "upload", "file", "media", "file manager", "images", "laravel", "file browser"],
     "license": "MIT",
     "authors": [
@@ -10,15 +10,14 @@
         }
     ],
     "require": {
-        "php": ">=5.4.0",
-        "illuminate/support": "4.2.*"
+        "php": ">=5.5.9"
     },
     "autoload": {
         "classmap": [
             "src"
         ],
         "psr-0": {
-            "Lavalite\\File\\": "src/"
+            "Lavalite\\Filer\\": "src/"
         }
     },
     "minimum-stability": "stable"
