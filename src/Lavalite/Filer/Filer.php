@@ -17,7 +17,7 @@ use Intervention\Image\Image;
  */
 class Filer
 {
-
+    /*==========  Image Upload Functions  ==========*/
     /**
      * Upload file to the folder
      * @param UploadedFile $file
@@ -30,7 +30,7 @@ class Filer
         $this->verifyUploadType($file);
 
         // Check file size
-        if ($file->getSize() > Config::get('filer::max_upload_size')) {
+        if ($file->getSize() > config('filer.max_upload_size')) {
             throw new FileException('File is too big.');
         }
 
@@ -67,7 +67,7 @@ class Filer
             $file->fileSystemName = $file->getClientOriginalName();
         }
 
-        if (Config::get('filer::obfuscate_filenames') && $enableObfuscation) {
+        if (config('filer.obfuscate_filenames') && $enableObfuscation) {
             $fileName = basename($file->fileSystemName, $file->getClientOriginalExtension()) . '_' . md5(uniqid(mt_rand(), true)) . '.' . $file->getClientOriginalExtension();
         } else {
             $fileName = $file->fileSystemName;
@@ -111,13 +111,13 @@ class Filer
     public function checkUploadFolder($folder)
     {
 
-        $folder = public_path() . '/' . $folder;
-        $folder = $this->cleanPath($folder);
+        $folder = public_path($folder);
+        $folder .= (substr($folder, -1) != '/') ? '/': '';
 
         // Check to see if the upload folder exists
         if (!File::exists($folder)) {
             // Try and create it
-            if (!File::makeDirectory($folder, Config::get('filer::folder_permission'), true)) {
+            if (!File::makeDirectory($folder, config('filer.folder_permission'), true)) {
                 throw new FileException('Directory is not writable. Please make upload folder writable.');
             }
         }
@@ -132,8 +132,8 @@ class Filer
      */
     public function verifyUploadType(UploadedFile $file)
     {
-        if (!in_array($file->getMimeType(), Config::get('filer::allowed_types')) &&
-            !in_array(strtolower($file->getClientOriginalExtension()), Config::get('filer::allowed_extensions'))
+        if (!in_array($file->getMimeType(), config('filer.allowed_types')) &&
+            !in_array(strtolower($file->getClientOriginalExtension()), config('filer.allowed_extensions'))
         ) {
             throw new FileException('Invalid upload type.');
         }
@@ -146,8 +146,8 @@ class Filer
      */
     public function verifyImageType($file)
     {
-        if (in_array($file->getMimeType(), Config::get('filer::image_types')) ||
-            in_array(strtolower($file->getClientOriginalExtension()), Config::get('filer::image_extensions'))
+        if (in_array($file->getMimeType(), config('filer.image_types')) ||
+            in_array(strtolower($file->getClientOriginalExtension()), config('filer.image_extensions'))
         ) {
             return true;
         } else {
@@ -175,7 +175,7 @@ class Filer
     public function resizeImage($folder, $file)
     {
 
-        if (!Config::get('filer::image_resize_on_upload')) return;
+        if (!config('filer.image_resize_on_upload')) return;
 
         if (is_string($file)) {
             $uFile = new UploadedFile($folder . $file, $file);
@@ -184,25 +184,12 @@ class Filer
         if ($this->verifyImageType($uFile)) {
             $image = Intervention::make($folder . $file);
             //        dd(print_r($image));
-            if ($image->width() > Config::get('filer::image_max_size.w') || $image->height() > Config::get('filer::image_max_size.h')) {
+            if ($image->width() > config('filer.image_max_size.w') || $image->height() > config('filer.image_max_size.h')) {
 
-                $image->resize(Config::get('filer::image_max_size.w'), Config::get('filer::image_max_size.h'), true);
+                $image->resize(config('filer.image_max_size.w'), config('filer.image_max_size.h'), true);
                 $image->save($folder . $file);
             }
         }
-    }
-
-    public function cleanPath($path)
-    {
-
-        // Check to see if it begins in a slash
-        if(substr($path, 0, 1) != '/')  $path = '/' . $path;
-
-        // Check to see if it ends in a slash
-        if (substr($path, -1) != '/') $path .= '/';
-
-        $path = str_replace('//', '/' , $path);
-        return $path;
     }
 
     public function relativePath($path)
@@ -215,7 +202,78 @@ class Filer
         // Check to see if it ends in a slash
         if (substr($path, -1) != '/') $path .= '/';
 
+        $path   = str_replace('//', '/', $path);
+
         return $path;
+    }
+
+    /*==========  File display functions  ==========*/
+    public function show($files, $count = -1, $view = 'filer::show')
+    {
+
+        if (!is_array($files) && !is_object($files)) $files = json_decode($files, true);
+
+        if(empty($files)) $files = array();
+
+        if (is_object($files))
+            $files      = (array)$files;
+
+        return View::make($view, compact('files', 'field', 'count'));
+    }
+
+    public function editor($field, $files, $count = -1, $view = 'filer::editor')
+    {
+        if (!is_array($files) && !is_object($files)) $files = json_decode($files, true);
+
+        if(empty($files)) $files = array();
+
+        if (is_object($files))
+            $files      = (array)$files;
+
+        return View::make($view, compact('files', 'field', 'count'));
+    }
+
+    public function uploader($field, $path, $files = 10, $view = 'filer::upload')
+    {
+        return View::make($view, compact('path', 'field', 'files'));
+    }
+
+    /*==========  Image Resize Functions  ==========*/
+    /**
+     * @param $folder
+     * @param $file
+     * @param $size
+     * @return mixed
+     */
+    public function resize($folder, $file, $size)
+    {
+
+        // pass calls to picture cache
+        return Intervention::cache(function($picture) use ($folder, $file, $size) {
+            if (!is_file($file)) return false;
+            return $picture->make($file)->resize($size['width'], $size['height']);
+
+        });
+    }
+
+    /**
+     * @param $folder
+     * @param $file
+     * @param $size
+     * @return mixed
+     */
+    public function fit($folder, $file, $size)
+    {
+
+        // pass calls to picture cache
+        return Intervention::cache(function($picture) use ($folder, $file, $size) {
+
+            $file = public_path().'/'.$folder.'/'.$file;
+            return $picture->make($file)->fit($size['width'], $size['height']);
+
+        });
+
+
     }
 
 }

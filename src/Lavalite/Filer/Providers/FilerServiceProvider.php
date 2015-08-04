@@ -1,4 +1,4 @@
-<?php namespace Lavalite\Filer;
+<?php namespace Lavalite\Filer\Providers;
 
 use Illuminate\Support\ServiceProvider;
 
@@ -18,8 +18,22 @@ class FilerServiceProvider extends ServiceProvider {
      */
     public function boot()
     {
-        $this->package('lavalite/filer');
-        include __DIR__.'/../../routes.php';
+        $this->loadViewsFrom(__DIR__.'/../../../../resources/views', 'filer');
+
+        $this->publishes([
+            __DIR__.'/../../config/config.php' => config_path('filer.php'),
+        ], 'config');
+
+        $this->publishes([
+            __DIR__.'/../../../../resources/assets/jquery-file-upload/jquery.uploadfile.min.js' 
+            => public_path('/vendor/lavalite/filer/js/jquery.uploadfile.min.js'),
+
+            __DIR__.'/../../../../resources/assets/jquery-file-upload/uploadfile.css' 
+            => public_path('/vendor/lavalite/filer/css/uploadfile.css'),
+
+        ], 'public');
+
+        include __DIR__.'/../Http/routes.php';
     }
 
     /**
