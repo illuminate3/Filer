@@ -2,16 +2,26 @@
     @if(!empty($files))
     {!!Former::hidden($field)->id($field)->forceValue('0')!!}
     <div id="file_{!!$field!!}">
-        <a href="{!! URL::to($files['folder'])!!}/{!!$files['file']!!}" target="_blank">{!!$files['file']!!}</a>
+        <?php
+        $info   = pathinfo($files['file']);
+        $ext    = strtolower($info['extension']);
+        ?>
+        @if (in_array($ext, ['jpg','jpeg', 'png', 'gif']) )
+            <a href="{!! URL::to($files['folder'])!!}/{!!$files['file']!!}" target="_blank">
+                <img src="{!! URL::to('/image'.$files['folder'])!!}/sm_{!! $files['file'] !!}" class="img-thumbnail image-responsive">
+            </a>
+        @else
+            <a href="{!! URL::to($files['folder'])!!}/{!!$files['file']!!}" target="_blank">{!!$files['file']!!}</a>
+        @endif
         <a href="#" class="remove-image-{!!$field!!}">
             <span class="fa-stack fa-xs">
                 <i class="fa fa-circle fa-stack-2x"></i>
                 <i class="fa fa-times fa-stack-1x fa-inverse"></i>
             </span>
         </a>
-                            {!!Former::text($field."[caption]", 'File Name')->value($files['caption'])!!}
-                            {!!Former::hidden($field."[folder]")->value($files['folder'])->raw()!!}
-                            {!!Former::hidden($field."[file]")->value($files['file'])->raw()!!}
+        {!!Former::text($field."[caption]", 'Caption')->value($files['caption'])!!}
+        {!!Former::hidden($field."[folder]")->value($files['folder'])->raw()!!}
+        {!!Former::hidden($field."[file]")->value($files['file'])->raw()!!}
     </div>
     <script type="text/javascript">
     $('document').ready(function(){
@@ -22,7 +32,7 @@
     });
     </script>
     @else
-    Please upload file.
+    Upload file.
     @endif
 @else
     <div id="sortable">
@@ -30,7 +40,17 @@
         @forelse($files as $key => $file)
         <div id="img_box_{!!$field!!}_{!!$key!!}" class="img_box col-md-3 col-sm-3 col-xs-6">
             <div class="img_container">
-                <a href="{!! URL::to($file['folder'])!!}/{!!$file['file']!!}" target="_blank"><img src="{!! URL::to('/image'.$file['folder'])!!}/sm_{!! $file['file'] !!}" class="img-thumbnail image-responsive"></a>
+                <?php
+                $info   = pathinfo($file['file']);
+                $ext    = strtolower($info['extension']);
+                ?>
+                @if (in_array($ext, ['jpg','jpeg', 'png', 'gif']) )
+                    <a href="{!! URL::to($file['folder'])!!}/{!!$file['file']!!}" target="_blank"><img src="{!! URL::to('/image'.$file['folder'])!!}/sm_{!! $file['file'] !!}" class="img-thumbnail image-responsive"></a>
+                @else
+                    <div id="file">
+                        <a href="{!! URL::to($file['folder'])!!}/{!!$file['file']!!}" target="_blank">{!!$file['file']!!}</a>
+                    </div>
+                @endif
                 <div class="btn_container">
                     <a href="#" class="remove-image" data-id='{!!$key!!}'>
                     <span class="fa-stack fa-xs">
@@ -51,7 +71,7 @@
                     <div class="modal-content">
                         <div class="modal-header">
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                            <h4 class="modal-title" id="myModalLabel">Image Caption</h4>
+                            <h4 class="modal-title" id="myModalLabel">Caption</h4>
                         </div>
                         <div class="modal-body">
                             <img src="{!! URL::to($file['folder'])!!}/{!!$file['file']!!}" class="img-thumbnail">
@@ -67,7 +87,7 @@
             </div>
         </div>
         @empty
-        Please upload file(s).
+        Upload file(s).
         @endif
     </div>
 

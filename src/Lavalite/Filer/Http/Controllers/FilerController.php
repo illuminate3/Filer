@@ -1,6 +1,6 @@
 <?php namespace Lavalite\Filer;
 
-use Lavalite\Http\Controllers\Controller;
+use App\Http\Controllers\Controller;
 use URL;
 use Input;
 use Filer;

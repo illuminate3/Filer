@@ -233,9 +233,9 @@ class Filer
         return View::make($view, compact('files', 'field', 'count'));
     }
 
-    public function uploader($field, $path, $files = 10, $view = 'filer::upload')
+    public function uploader($field, $path, $files = 10, $view = 'filer::upload', $mime = 'image/*')
     {
-        return View::make($view, compact('path', 'field', 'files'));
+        return View::make($view, compact('path', 'field', 'files', 'mime'));
     }
 
     /*==========  Image Resize Functions  ==========*/
